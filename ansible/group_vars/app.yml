@@ -1,0 +1,7 @@
+app_image: "ghcr.io/<YOUR_GITHUB_USERNAME>/task-queue-platform:latest"
+app_dir: "/opt/task-queue-platform"
+app_container_name: "task-queue-platform"
+app_port: 3000
+
+redis_url: "redis://redis:6379"
+kafka_brokers: "kafka:9092"

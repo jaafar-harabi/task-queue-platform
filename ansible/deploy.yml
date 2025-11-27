@@ -1,0 +1,54 @@
+---
+- hosts: app
+  become: yes
+  vars_files:
+    - group_vars/app.yml
+
+  tasks:
+    - name: Install apt packages
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+        update_cache: yes
+
+    - name: Install Docker (official script)
+      shell: |
+        curl -fsSL https://get.docker.com | sh
+      args:
+        creates: /usr/bin/docker
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create app directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Pull app image
+      community.docker.docker_image:
+        name: "{{ app_image }}"
+        source: pull
+
+    - name: Run app container
+      community.docker.docker_container:
+        name: "{{ app_container_name }}"
+        image: "{{ app_image }}"
+        restart_policy: always
+        env:
+          PORT: "{{ app_port }}"
+          REDIS_URL: "{{ redis_url }}"
+          KAFKA_BROKERS: "{{ kafka_brokers }}"
+          KAFKA_CLIENT_ID: "task-service"
+          KAFKA_TASKS_TOPIC: "tasks"
+        ports:
+          - "{{ app_port }}:{{ app_port }}"
