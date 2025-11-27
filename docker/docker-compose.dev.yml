@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # Add your Kafka service here, with container name 'kafka' and port 9092
+  # kafka:
+  #   image: bitnami/kafka:latest
+  #   environment:
+  #     - ALLOW_PLAINTEXT_LISTENER=yes
+  #     - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+  #     - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+  #   ports:
+  #     - "9092:9092"
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    environment:
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+      - KAFKA_CLIENT_ID=task-service
+      - KAFKA_TASKS_TOPIC=tasks
+    depends_on:
+      - redis
+      # - kafka
+    ports:
+      - "3000:3000"
