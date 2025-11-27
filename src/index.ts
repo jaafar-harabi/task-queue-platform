@@ -1,0 +1,1 @@
+console.log("Task Queue Platform starting...");
